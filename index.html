@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="发版室：一款理解 AI DRI 分级与三维能力成长的互动策略游戏。" />
+    <title>发版室：AI DRI 成长策略游戏</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="noise"></div>
+    <main id="app">
+      <section class="title-screen" id="title-screen">
+        <div class="title-grid"></div>
+        <div class="title-copy">
+          <div class="top-secret">AI DRI CASE FILE · 004</div>
+          <p class="title-kicker">四次发版，一条成长路径</p>
+          <h1><span>发版室</span>RELEASE<br />ROOM</h1>
+          <p class="title-desc">
+            你将接手小希的四次发布危机。先完成真实任务，再用交付证据让三项能力各成长一级，逐步走向 AI DRI。
+          </p>
+          <div class="title-features">
+            <span>有限资源</span><span>连续后果</span><span>能力投资</span><span>专属结局</span>
+          </div>
+          <button class="command-button" id="start-button" type="button">
+            <span>进入游戏，开始生成视频</span><b>ENTER</b>
+          </button>
+        </div>
+        <aside class="title-brief">
+          <span>今晚 23:47</span>
+          <strong>距离首次发版还有 72 小时</strong>
+          <p>运营刚刚发来一句话：“能不能用 AI 做条宣传视频？”</p>
+          <i></i>
+          <small>你的第一张行动卡，会决定这条增长路径从哪里开始。</small>
+        </aside>
+        <div class="title-footer"><span>STRATEGY NARRATIVE</span><span>AI DRI COMPASS SYSTEM</span></div>
+      </section>
+
+      <section class="game-screen hidden" id="game-screen">
+        <header class="hud-top">
+          <div class="hud-brand"><span>RR</span><div><strong>发版室</strong><small>AI DRI OPERATIONS</small></div></div>
+          <div class="round-track" id="round-track"></div>
+          <button class="icon-button" id="restart-button" type="button" aria-label="重新开始">↻</button>
+        </header>
+
+        <div class="game-layout">
+          <aside class="mission-panel">
+            <div class="mission-stamp" id="mission-stamp">CASE 01</div>
+            <p class="mission-kicker" id="mission-kicker"></p>
+            <h2 id="mission-title"></h2>
+            <p class="mission-story" id="mission-story"></p>
+            <div class="npc-message">
+              <span id="npc-avatar">运</span>
+              <div><small id="npc-name">运营 · 刚刚</small><p id="npc-message"></p></div>
+            </div>
+            <div class="objective-box">
+              <span>本轮发布条件</span>
+              <div id="objectives"></div>
+            </div>
+            <div class="consequence-note hidden" id="consequence-note"></div>
+          </aside>
+
+          <section class="war-table">
+            <div class="table-status">
+              <div class="focus-display">
+                <span>剩余专注力</span>
+                <div id="focus-pips"></div>
+              </div>
+              <div class="metric-strip" id="metric-strip"></div>
+            </div>
+
+            <div class="action-zone">
+              <div class="zone-head">
+                <div><span>PHASE 02 · ACTION DECK</span><strong>用成长后的能力，选择本轮行动</strong></div>
+                <p>每张卡消耗 1 点专注力；所有行动都可选，能力成熟度决定执行质量。</p>
+              </div>
+              <div class="action-grid" id="action-grid"></div>
+            </div>
+
+            <div class="table-footer">
+              <div class="selected-plan">
+                <span>本轮计划</span>
+                <div id="selected-plan"><i></i><i></i><i></i></div>
+              </div>
+              <button class="launch-button" id="launch-button" type="button" disabled>
+                <span>执行发布</span><small>至少选择 1 张行动卡</small>
+              </button>
+            </div>
+          </section>
+
+          <aside class="dri-panel">
+            <div class="rank-header">
+              <span>三维能力成熟度</span><strong id="rank-label">入门</strong>
+            </div>
+            <div class="rank-orbit"><div id="rank-orbit"><span>DRI</span></div></div>
+            <div class="ability-stack" id="ability-stack"></div>
+            <div class="asset-vault">
+              <span>已沉淀资产</span>
+              <div id="asset-list"><small>尚无资产</small></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="overlay growth-overlay hidden" id="growth-overlay">
+        <div class="growth-card">
+          <div class="growth-head">
+            <div>
+              <span>PHASE 01 · ABILITY GROWTH</span>
+              <h2>交付之后，能力才会长出来</h2>
+              <p>本轮交付产生了 3 点成长证据。请让业务定义力、AI 转化力、价值闭环力各成长一级，再进入下一环节。</p>
+            </div>
+            <div class="growth-budget">
+              <small id="growth-stage">入门 · 完成明确任务</small>
+              <span>待分配成长点</span>
+              <strong id="growth-points">3</strong>
+            </div>
+          </div>
+          <div class="growth-grid" id="growth-grid"></div>
+          <div class="growth-foot">
+            <p>每项能力本轮必须获得 1 点；升级来自刚刚完成的真实交付。</p>
+            <button class="command-button growth-confirm" id="growth-confirm" type="button" disabled>
+              <span>让三项能力各升一级</span><b>LOCKED</b>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="overlay hidden" id="result-overlay">
+        <div class="result-card">
+          <div class="result-grade" id="result-grade">B</div>
+          <div class="result-main">
+            <span class="result-kicker" id="result-kicker">RELEASE REPORT</span>
+            <h2 id="result-title"></h2>
+            <p id="result-copy"></p>
+            <div class="result-metrics" id="result-metrics"></div>
+            <div class="result-log" id="result-log"></div>
+          </div>
+          <button class="command-button result-next" id="result-next" type="button">
+            <span>进入下一次发版</span><b>CONTINUE</b>
+          </button>
+        </div>
+      </section>
+
+      <section class="final-screen hidden" id="final-screen">
+        <div class="final-report">
+          <div class="report-head">
+            <div><span>AI DRI FINAL DOSSIER</span><h2 id="ending-title"></h2><p id="ending-subtitle"></p></div>
+            <div class="final-seal" id="final-seal">A</div>
+          </div>
+          <div class="report-body">
+            <div class="ending-summary"><p id="ending-copy"></p><blockquote id="ending-quote"></blockquote></div>
+            <div class="final-abilities" id="final-abilities"></div>
+            <div class="journey-map" id="journey-map"></div>
+          </div>
+          <div class="report-footer">
+            <div><span>组织可复用资产</span><strong id="final-assets"></strong></div>
+            <div><span>综合业务表现</span><strong id="final-score"></strong></div>
+            <button class="command-button" id="replay-button" type="button"><span>重新推演</span><b>REPLAY</b></button>
+          </div>
+        </div>
+      </section>
+
+      <div class="toast-layer" id="toast-layer"></div>
+    </main>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
