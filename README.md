@@ -1,13 +1,12 @@
 # Game Show: AI DRI Release Room
 
-An interactive web game that explains how an AI DRI grows through four real business stages:
+An interactive web game that explains how an AI DRI grows through three real business experiences:
 
 1. Complete a clear AI task.
-2. Discover reusable experience.
-3. Turn repeated work into a controllable AI SOP.
-4. Build a business feedback loop.
+2. Turn repeated work into a controllable AI SOP.
+3. Experience an end-to-end business feedback loop.
 
-Players act first, then use evidence from the completed delivery to grow three abilities:
+After the first delivery, all three abilities rise to level 2. After the second, they rise to level 3. The final experience applies the complete level-3 chain:
 
 - Business definition
 - AI transformation

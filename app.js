@@ -50,24 +50,10 @@ const rounds = [
     ],
   },
   {
-    kicker: "第二次发版 · 经验复用",
-    title: "熟悉的需求，又来了",
-    story: "第二次发版比预想中更早。上次交付的方法还散落在聊天记录里，团队正在重复同样的讨论。",
-    npc: ["运", "运营 · 周一 09:12", "上次那条效果不错，这次也照着来一条？"],
-    objectives: { progress: 56, quality: 48, insight: 18 },
-    cards: [
-      ["compare", "business", "比较两次需求", "标记重复目标、输入、约束和变化项。", { insight: 20, quality: 9, progress: 5 }, "重复模式地图"],
-      ["reuse", "ai", "复用 Prompt 模板", "把有效输入结构与工具配置重新调用。", { progress: 25, quality: 11 }, "Prompt 模板 v2"],
-      ["archive", "value", "记录评审与数据", "保留修改记录、发布数据和效果差异。", { insight: 18, quality: 10, risk: -5 }, "复盘记录"],
-      ["fresh", "ai", "完全从零重做", "避免受上一次方案限制，重新探索。", { quality: 13, progress: 5, risk: 6 }, null],
-      ["rush", "value", "沿用成片直接发布", "节约时间，但跳过本次差异确认。", { progress: 31, risk: 20, quality: -8 }, null],
-    ],
-  },
-  {
-    kicker: "多次发版 · 流程改造",
+    kicker: "第二次发版 · AI SOP",
     title: "重复任务，显露出一条稳定流程",
     story: "版本宣传已经成为周期性任务。重复步骤足够稳定，小希需要确认哪些环节值得沉淀为可控、可复用的 AI SOP。",
-    npc: ["研", "研发负责人 · 14:30", "这个季度还有四次发布，能不能让流程稳定跑起来？"],
+    npc: ["研", "研发负责人 · 14:30", "后续还有多次发布，能不能让流程稳定跑起来？"],
     objectives: { progress: 65, quality: 62, risk: 28 },
     cards: [
       ["define", "business", "确认可沉淀的 AI SOP", "识别稳定重复的版本宣传流程，定义沉淀目标、约束、优先级与成功标准。", { insight: 20, quality: 14, risk: -4 }, "AI SOP 定义卡"],
@@ -78,7 +64,7 @@ const rounds = [
     ],
   },
   {
-    kicker: "流程稳定后 · 增长闭环",
+    kicker: "第三次发版 · 增长闭环",
     title: "播放量上涨，业务价值却没有动",
     story: "宣传流程已经稳定，内容产能显著提升。但数据看板显示：播放量增长，功能使用率却几乎没有变化。",
     npc: ["总", "产品负责人 · 复盘会", "我们做得更快了。但用户到底被什么打动？"],
@@ -99,8 +85,6 @@ const state = {
   selected: [],
   metrics: { progress: 15, quality: 15, insight: 5, risk: 12 },
   ability: { business: 0, ai: 0, value: 0 },
-  growthBudget: 0,
-  growthDraft: { business: 0, ai: 0, value: 0 },
   assets: [],
   history: [],
   pendingResult: null,
@@ -132,7 +116,6 @@ const metricInfo = {
 
 const roundStages = [
   { level: 0, label: "入门 · 完成明确任务" },
-  { level: 0, label: "过渡 · 发现可复用经验" },
   { level: 1, label: "不错 · 改造重复流程" },
   { level: 2, label: "精通 · 形成业务反馈闭环" },
 ];
@@ -147,7 +130,7 @@ function bonusTarget(effects) {
   return effects.risk < 0 ? "risk" : null;
 }
 function rank() {
-  return ["入门", "入门", "不错", "精通"][state.round];
+  return ["入门", "不错", "精通"][state.round];
 }
 
 function renderRoundTrack() {
@@ -172,7 +155,7 @@ function renderAbilities() {
       <div><span>${ability.name}</span><strong>${ability.levels[level].label}</strong>
       <small>${ability.levels[level].requirement}</small>
       <i>${[0,1,2].map(n => `<b class="${n <= level ? "on" : ""}"></b>`).join("")}</i></div>
-      <em>累计投入 ${state.ability[key]}</em>
+      <em>LV.${state.ability[key] + 1}</em>
     </div>`;
   }).join("");
 }
@@ -269,86 +252,68 @@ function showResult() {
   els.resultGrade.textContent = r.grade;
   els.resultGrade.dataset.grade = r.grade;
   els.resultKicker.textContent = `CASE 0${state.round + 1} · RELEASE REPORT`;
-  els.resultTitle.textContent = r.grade === "A" ? "一次有证据的漂亮交付" : r.grade === "B" ? "任务完成，但代价开始显现" : "发布完成，风险进入下一轮";
-  els.resultCopy.textContent = r.consequence;
+  els.resultTitle.textContent = state.round === rounds.length - 1
+    ? "第三条链路跑通，成长路径完成"
+    : r.grade === "A" ? "一次有证据的漂亮交付" : r.grade === "B" ? "任务完成，但代价开始显现" : "发布完成，风险进入下一轮";
+  els.resultCopy.textContent = state.round === rounds.length - 1
+    ? "从明确任务，到可复用 AI SOP，再到端到端业务反馈闭环，小希已经完成三段核心体验。"
+    : r.consequence;
   els.resultMetrics.innerHTML = Object.entries(metricInfo).map(([key, [name]]) => {
     const diff = state.metrics[key] - r.before[key];
     return `<div><span>${name}</span><strong>${state.metrics[key]}</strong><em class="${diff < 0 ? "negative" : ""}">${diff > 0 ? "+" : ""}${diff}</em></div>`;
   }).join("");
   els.resultLog.innerHTML = r.log.map(item => `<span>${item}</span>`).join("");
-  els.resultNext.innerHTML = `<span>${state.round === rounds.length - 1 ? "完成最后一次能力升级" : "用交付证据升级三项能力"}</span><b>GROW</b>`;
+  const nextLevel = Math.min(roundStages[state.round].level + 1, 2);
+  els.resultNext.innerHTML = state.round === rounds.length - 1
+    ? "<span>查看最终成长报告</span><b>REPORT</b>"
+    : `<span>三维能力升至 ${nextLevel + 1} 级 · ${["入门","不错","精通"][nextLevel]}</span><b>LEVEL UP</b>`;
   els.result.classList.remove("hidden");
 }
 
-function growthRemaining() {
-  return state.growthBudget - Object.values(state.growthDraft).reduce((sum, value) => sum + value, 0);
-}
-
 function renderGrowthPhase() {
-  const remaining = growthRemaining();
   const stage = roundStages[state.round];
-  els.growthPoints.textContent = remaining;
-  els.growthStage.textContent = stage.label;
+  const nextLevel = Math.min(stage.level + 1, 2);
+  els.growthPoints.textContent = nextLevel + 1;
+  els.growthStage.textContent = `${["入门","不错","精通"][nextLevel]} · 三维同步升级`;
   els.growthGrid.innerHTML = Object.entries(abilities).map(([key, ability]) => {
-    const draft = state.growthDraft[key];
-    const highlightedLevel = Math.min(stage.level + draft, 2);
+    const highlightedLevel = nextLevel;
     const matchingActions = rounds[state.round].cards
       .map(card => ({ ability: card[1], title: card[2] }))
       .filter(action => action.ability === key);
     const actionPreview = matchingActions.map(action => action.title);
-    return `<article class="growth-option ${draft ? "selected" : ""}" style="--ability:${ability.color}">
-      <div class="growth-option-head"><span>${ability.sigil}</span><div><small>${ability.name}</small><strong>${ability.levels[highlightedLevel].label}</strong></div><b>成长记录 ${state.ability[key]}</b></div>
+    return `<article class="growth-option selected" style="--ability:${ability.color}">
+      <div class="growth-option-head"><span>${ability.sigil}</span><div><small>${ability.name}</small><strong>${ability.levels[highlightedLevel].label}</strong></div><b>升级至 LV.${highlightedLevel + 1}</b></div>
       <p class="ability-question">${ability.question}</p>
-      <div class="growth-levels">${ability.levels.map((level, index) => `<i class="${index === highlightedLevel ? "current" : ""} ${index < highlightedLevel ? "passed" : ""} ${draft && index === highlightedLevel ? "newly-upgraded" : ""}"><span>${index + 1}</span><div><strong>${["入门","不错","精通"][index]} · ${level.label}</strong><small>${level.requirement}</small><em>${draft && index === highlightedLevel ? "本轮升级目标 · " : "可观察证据："}${level.evidence}</em></div></i>`).join("")}</div>
-      <div class="ability-impact"><span>本轮相关行动：${actionPreview.join("、")}</span><b>${draft ? "本轮已获得 1 点成长" : "等待用本轮证据升级"}</b></div>
-      <div class="growth-controls">
-        <button type="button" data-action="minus" data-ability="${key}" ${draft === 0 ? "disabled" : ""}>撤回</button>
-        <strong>${draft ? `本轮 +${draft}` : "尚未投入"}</strong>
-        <button class="${draft ? "selected" : ""}" type="button" data-action="plus" data-ability="${key}" ${remaining === 0 || draft === 1 ? "disabled" : ""}>${draft ? "已升级 ✓" : "升级 +1"}</button>
-      </div>
+      <div class="growth-levels">${ability.levels.map((level, index) => `<i class="${index === highlightedLevel ? "current newly-upgraded" : ""} ${index < highlightedLevel ? "passed" : ""}"><span>${index + 1}</span><div><strong>${["入门","不错","精通"][index]} · ${level.label}</strong><small>${level.requirement}</small><em>${index === highlightedLevel ? "本轮升级结果 · " : "可观察证据："}${level.evidence}</em></div></i>`).join("")}</div>
+      <div class="ability-impact"><span>刚刚体验：${actionPreview.join("、")}</span><b>三维能力已同步升级</b></div>
     </article>`;
   }).join("");
-  els.growthGrid.querySelectorAll("button").forEach(button => button.addEventListener("click", () => {
-    const { action, ability } = button.dataset;
-    if (action === "plus" && growthRemaining() > 0 && state.growthDraft[ability] < 1) state.growthDraft[ability] += 1;
-    if (action === "minus" && state.growthDraft[ability] > 0) state.growthDraft[ability] -= 1;
-    renderGrowthPhase();
-  }));
-  els.growthConfirm.disabled = remaining > 0;
-  els.growthConfirm.classList.toggle("has-progress", remaining < state.growthBudget);
-  els.growthConfirm.innerHTML = remaining > 0
-    ? `<span>还有 ${remaining} 项能力需要升级</span><b>LOCKED</b>`
-    : `<span>${state.round === rounds.length - 1 ? "确认升级，生成最终报告" : "确认升级，进入下一环节"}</span><b>CONTINUE</b>`;
+  els.growthConfirm.disabled = false;
+  els.growthConfirm.classList.add("has-progress");
+  els.growthConfirm.innerHTML = `<span>确认升至 ${nextLevel + 1} 级，进入下一环节</span><b>CONTINUE</b>`;
 }
 
 function openGrowthPhase() {
-  state.growthBudget = 3;
-  state.growthDraft = { business: 0, ai: 0, value: 0 };
   renderGrowthPhase();
   els.growth.classList.remove("hidden");
 }
 
 function confirmGrowth() {
-  if (growthRemaining() > 0) return;
-  const upgrades = [];
-  Object.entries(state.growthDraft).forEach(([key, value]) => {
-    if (!value) return;
-    state.ability[key] += value;
-    upgrades.push(`${abilities[key].name}成长 +${value}`);
-  });
+  const nextLevel = Math.min(roundStages[state.round].level + 1, 2);
+  Object.keys(state.ability).forEach(key => { state.ability[key] = nextLevel; });
   els.growth.classList.add("hidden");
-  toast(upgrades.join("；"), "reward");
+  toast(`三维能力同步升至 ${nextLevel + 1} 级 · ${["入门","不错","精通"][nextLevel]}`, "reward");
   advanceAfterGrowth();
 }
 
 function beginGrowthAfterResult() {
   state.history.push({ grade: state.pendingResult.grade, consequence: state.pendingResult.consequence, selected: [...state.selected], metrics: { ...state.metrics } });
   els.result.classList.add("hidden");
+  if (state.round === rounds.length - 1) { showFinal(); return; }
   openGrowthPhase();
 }
 
 function advanceAfterGrowth() {
-  if (state.round === rounds.length - 1) { showFinal(); return; }
   state.round += 1; state.selected = []; state.focus = 3;
   renderRound();
 }
@@ -356,7 +321,9 @@ function advanceAfterGrowth() {
 function showFinal() {
   els.game.classList.add("hidden"); els.final.classList.remove("hidden");
   const total = state.metrics.progress + state.metrics.quality + state.metrics.insight - state.metrics.risk + state.assets.length * 4;
-  const strongest = Object.entries(state.ability).sort((a,b) => b[1] - a[1])[0][0];
+  const abilityUse = { business: 0, ai: 0, value: 0 };
+  state.history.forEach((item, roundIndex) => item.selected.forEach(cardIndex => { abilityUse[rounds[roundIndex].cards[cardIndex][1]] += 1; }));
+  const strongest = Object.entries(abilityUse).sort((a,b) => b[1] - a[1])[0][0];
   const endings = {
     business: ["机会定义者", "他最擅长的不是接住需求，而是找到真正值得解决的问题。", "AI DRI 的起点，从来不是工具，而是对业务问题更清楚的定义。"],
     ai: ["流程架构师", "他把零散的工具与经验，组织成了团队可以稳定运行的 AI 链路。", "AI 不再是某个人的技巧，而成为业务系统的一部分。"],
@@ -368,7 +335,7 @@ function showFinal() {
   els.endingCopy.textContent = ending[1]; els.endingQuote.textContent = ending[2];
   els.finalAbilities.innerHTML = Object.entries(abilities).map(([key, ability]) => {
     const level = roundStages[state.round].level;
-    return `<div style="--ability:${ability.color}"><span>${ability.sigil}</span><p><strong>${ability.name}</strong><small>${ability.levels[level].label}</small></p><b>投入 ${state.ability[key]}</b></div>`;
+    return `<div style="--ability:${ability.color}"><span>${ability.sigil}</span><p><strong>${ability.name}</strong><small>${ability.levels[level].label}</small></p><b>LV.${state.ability[key] + 1}</b></div>`;
   }).join("");
   els.journeyMap.innerHTML = state.history.map((item, i) => `<div data-grade="${item.grade}"><span>0${i + 1}</span><strong>${rounds[i].kicker.split(" · ")[0]}</strong><small>${item.grade} 级交付</small></div>`).join("");
   els.finalAssets.textContent = `${state.assets.length} 项`; els.finalScore.textContent = `${Math.round(total)} 分`;
@@ -380,7 +347,7 @@ function toast(text, type) {
 }
 
 function reset() {
-  Object.assign(state, { round: 0, focus: 3, selected: [], metrics: { progress: 15, quality: 15, insight: 5, risk: 12 }, ability: { business: 0, ai: 0, value: 0 }, growthBudget: 0, growthDraft: { business: 0, ai: 0, value: 0 }, assets: [], history: [], pendingResult: null });
+  Object.assign(state, { round: 0, focus: 3, selected: [], metrics: { progress: 15, quality: 15, insight: 5, risk: 12 }, ability: { business: 0, ai: 0, value: 0 }, assets: [], history: [], pendingResult: null });
   els.title.classList.remove("hidden"); els.game.classList.add("hidden"); els.growth.classList.add("hidden"); els.result.classList.add("hidden"); els.final.classList.add("hidden");
 }
 
