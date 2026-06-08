@@ -291,14 +291,15 @@ function renderGrowthPhase() {
   els.growthStage.textContent = stage.label;
   els.growthGrid.innerHTML = Object.entries(abilities).map(([key, ability]) => {
     const draft = state.growthDraft[key];
+    const highlightedLevel = Math.min(stage.level + draft, 2);
     const matchingActions = rounds[state.round].cards
       .map(card => ({ ability: card[1], title: card[2] }))
       .filter(action => action.ability === key);
     const actionPreview = matchingActions.map(action => action.title);
     return `<article class="growth-option ${draft ? "selected" : ""}" style="--ability:${ability.color}">
-      <div class="growth-option-head"><span>${ability.sigil}</span><div><small>${ability.name}</small><strong>${ability.levels[stage.level].label}</strong></div><b>成长记录 ${state.ability[key]}</b></div>
+      <div class="growth-option-head"><span>${ability.sigil}</span><div><small>${ability.name}</small><strong>${ability.levels[highlightedLevel].label}</strong></div><b>成长记录 ${state.ability[key]}</b></div>
       <p class="ability-question">${ability.question}</p>
-      <div class="growth-levels">${ability.levels.map((level, index) => `<i class="${index === stage.level ? "current" : ""} ${index < stage.level ? "passed" : ""}"><span>${index + 1}</span><div><strong>${["入门","不错","精通"][index]} · ${level.label}</strong><small>${level.requirement}</small><em>可观察证据：${level.evidence}</em></div></i>`).join("")}</div>
+      <div class="growth-levels">${ability.levels.map((level, index) => `<i class="${index === highlightedLevel ? "current" : ""} ${index < highlightedLevel ? "passed" : ""} ${draft && index === highlightedLevel ? "newly-upgraded" : ""}"><span>${index + 1}</span><div><strong>${["入门","不错","精通"][index]} · ${level.label}</strong><small>${level.requirement}</small><em>${draft && index === highlightedLevel ? "本轮升级目标 · " : "可观察证据："}${level.evidence}</em></div></i>`).join("")}</div>
       <div class="ability-impact"><span>本轮相关行动：${actionPreview.join("、")}</span><b>${draft ? "本轮已获得 1 点成长" : "等待用本轮证据升级"}</b></div>
       <div class="growth-controls">
         <button type="button" data-action="minus" data-ability="${key}" ${draft === 0 ? "disabled" : ""}>撤回</button>
