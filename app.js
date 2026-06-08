@@ -295,7 +295,7 @@ function renderGrowthPhase() {
       .map(card => ({ ability: card[1], title: card[2] }))
       .filter(action => action.ability === key);
     const actionPreview = matchingActions.map(action => action.title);
-    return `<article class="growth-option" style="--ability:${ability.color}">
+    return `<article class="growth-option ${draft ? "selected" : ""}" style="--ability:${ability.color}">
       <div class="growth-option-head"><span>${ability.sigil}</span><div><small>${ability.name}</small><strong>${ability.levels[stage.level].label}</strong></div><b>成长记录 ${state.ability[key]}</b></div>
       <p class="ability-question">${ability.question}</p>
       <div class="growth-levels">${ability.levels.map((level, index) => `<i class="${index === stage.level ? "current" : ""} ${index < stage.level ? "passed" : ""}"><span>${index + 1}</span><div><strong>${["入门","不错","精通"][index]} · ${level.label}</strong><small>${level.requirement}</small><em>可观察证据：${level.evidence}</em></div></i>`).join("")}</div>
@@ -303,7 +303,7 @@ function renderGrowthPhase() {
       <div class="growth-controls">
         <button type="button" data-action="minus" data-ability="${key}" ${draft === 0 ? "disabled" : ""}>撤回</button>
         <strong>${draft ? `本轮 +${draft}` : "尚未投入"}</strong>
-        <button type="button" data-action="plus" data-ability="${key}" ${remaining === 0 || draft === 1 ? "disabled" : ""}>升级 +1</button>
+        <button class="${draft ? "selected" : ""}" type="button" data-action="plus" data-ability="${key}" ${remaining === 0 || draft === 1 ? "disabled" : ""}>${draft ? "已升级 ✓" : "升级 +1"}</button>
       </div>
     </article>`;
   }).join("");
@@ -314,6 +314,7 @@ function renderGrowthPhase() {
     renderGrowthPhase();
   }));
   els.growthConfirm.disabled = remaining > 0;
+  els.growthConfirm.classList.toggle("has-progress", remaining < state.growthBudget);
   els.growthConfirm.innerHTML = remaining > 0
     ? `<span>还有 ${remaining} 项能力需要升级</span><b>LOCKED</b>`
     : `<span>${state.round === rounds.length - 1 ? "确认升级，生成最终报告" : "确认升级，进入下一环节"}</span><b>CONTINUE</b>`;
